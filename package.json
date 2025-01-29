@@ -2,6 +2,7 @@
     "name": "prueba-websockets",
     "version": "1.0.0",
     "dependencies": {
+        "prueba-websockets": "file:",
         "websocket": "^1.0.35"
     }
 }

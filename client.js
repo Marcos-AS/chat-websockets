@@ -4,13 +4,17 @@
     let ws;
 
     function onLoad() {
+        //se obtiene la URL de la ubi actual del documento a partir del objeto Location
         let localURL = parseLocation(window.location);
+        //API para creación de conexión WebSocket
         ws = new WebSocket("ws://" + localURL.host, "chat-protocol");
         ws.addEventListener('open', onSocketOpen);
         ws.addEventListener('close', onSocketClose);
         ws.addEventListener('error', onSocketError);
         ws.addEventListener('message', onSocketMessage);
+        //alias de querySelector
         qs('#chat-send').addEventListener('click', send);
+        //cuando se presiona una tecla
         qs("#chat-input").addEventListener('keyup', onChatInputKeyUp);
     }
     
@@ -88,6 +92,8 @@
         }
     }
     
+    //arma el mensaje con el tipo de msj y el payload (user y msj) y
+    // se lo pasa a sendMessage que es el que envía el mensaje al servidor
     function send() {
         sendMessage('chat-message', {
             "username": getChatUsername(),

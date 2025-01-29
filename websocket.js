@@ -3,13 +3,16 @@ const websocket = require('websocket');
 let connectionList = {};
 
 function startWsServer(httpServer) {
+    //se instancia el servidor ws, con un servidor http
     wsServer = new websocket.server({
         httpServer: httpServer
     })
+    //la comunicación sucede en 2 etapas, primero request y si acepta, connect
     wsServer.on('request', onServerRequest);
     wsServer.on('connect', onServerConnect);
 }
 
+//envía el mensaje en formato JSON a todas las conexiones de la lista
 function broadcast(response) {
     for (let k in connectionList) {
         if (connectionList.hasOwnProperty(k)) {
@@ -41,12 +44,14 @@ function isWhitelisted(host) {
 }
 
 function onServerRequest(request) {
+    //puede rechazar la conexión si no está en la whitelist
     if (!isWhitelisted(request.host)) {
         request.reject();
         console.log("Websocket: denying connection from " + request.host);
         return;
     }
 
+    //puede rechazar la conexión si no es el protocolo esperado
     if (request.requestedProtocols[0] != 'chat-protocol') {
         request.reject(400, "Unknown protocol");
         console.log("Websocket: unknown protocol");
@@ -64,6 +69,7 @@ function onServerConnect(connection) {
         connection: connection,
     };
 
+    //se le asignan eventos a la conexión
     connection.on('message', onMessage);
     connection.on('error', onError);
     connection.on('close', onClose);
@@ -87,11 +93,14 @@ function onClose(reason, description) {
     broadcast(response);
 }
 
+//cuando llega un mensaje de un cliente
 function onMessage(message) {
     message = JSON.parse(message.utf8Data);
     storeUsername(this,message);
     console.log("Websocket: message: " + this.remoteAddress + ": " + message.type);
+    //valida que el tipo en el mensaje sea un tipo conocido
     if (message.type in messageHandler) {
+        //llama la función que corresponda
         messageHandler[message.type](message, this);
     } else {
         console.log("Websocket: unknown payload type: " + this.remoteAddress + ": " + message.type);        

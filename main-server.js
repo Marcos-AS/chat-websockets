@@ -1,5 +1,5 @@
 "use strict";
-const httpServer = require("./server.js"),
+const httpServer = require("./httpserver.js"),
     wsServer = require("./websocket.js");
 
 let server = httpServer.start();
